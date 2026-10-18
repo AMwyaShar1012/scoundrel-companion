@@ -38,6 +38,10 @@ gh repo clone AMwyaShar1012/scoundrel-companion
 
 Built using HTML, CSS, and JavaScript in a single file.
 
+# Collaboration and Contribution
+
+Issues and pull requests are welcome.
+
 ## Disclaimer
 
 Scoundrel Companion is an unofficial, fan-made utility for the solo card game *Scoundrel*. It is not affiliated with or endorsed by the game's creators. All rights to the original game belong to their respective owners.
