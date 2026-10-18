@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoundrel Companion</title>
+    <style>
+        @import url('https://googleapis.com');
+
+        body {
+            font-family: 'IM Fell English', serif;
+            background: radial-gradient(circle, #1a0f0f 0%, #0a0505 100%);
+            color: #e5dcd0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Ambient Torchlight Overlay */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 50% 30%, rgba(255, 68, 0, 0.04) 0%, rgba(0, 0, 0, 0) 70%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .counter-card {
+            background: linear-gradient(135deg, #1c1414 0%, #140d0d 100%);
+            border: 1px solid #3d231d;
+            padding: 35px 30px;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8), inset 0 0 15px rgba(0,0,0,0.6);
+            text-align: center;
+            width: 340px;
+            margin-bottom: 25px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .counter-card::after {
+            content: '';
+            position: absolute;
+            top: 4px; left: 4px; right: 4px; bottom: 4px;
+            border: 1px solid #291815;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            margin-top: 0;
+            color: #c5a880;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .hp-container {
+            position: relative;
+            margin: 15px 0;
+        }
+
+        .hp-display {
+            font-family: 'Cinzel', serif;
+            font-size: 5.5rem;
+            font-weight: 900;
+            color: #da3838;
+            text-shadow: 0 0 20px rgba(218, 56, 56, 0.2), 0 4px 10px rgba(0,0,0,0.7);
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+            line-height: 1;
+        }
+        
+        .hp-display.max { 
+            color: #d4af37; 
+            text-shadow: 0 0 25px rgba(212, 175, 55, 0.3), 0 4px 10px rgba(0,0,0,0.7);
+        }
+        
+        .hp-label {
+            font-size: 0.9rem;
+            color: #705853;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: -5px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 3;
+        }
+
+        button {
+            font-family: 'Cinzel', serif;
+            flex: 1;
+            padding: 14px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: 1px solid rgba(0,0,0,0.4);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .btn-damage { 
+            background: linear-gradient(to bottom, #8a1f1f, #541010); 
+            color: #ffcccc;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+        .btn-damage:hover { 
+            background: linear-gradient(to bottom, #a32424, #661313);
+            box-shadow: 0 0 10px rgba(230, 36, 36, 0.3);
+        }
+
+        .btn-heal { 
+            background: linear-gradient(to bottom, #2a5c43, #163625); 
+            color: #ccffdd;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+        .btn-heal:hover { 
+            background: linear-gradient(to bottom, #347354, #1d4731);
+            box-shadow: 0 0 10px rgba(52, 115, 84, 0.3);
+        }
+        
+        .reset-btn {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            background: none;
+            border: 1px solid #3d2c29;
+            color: #8c726d;
+            font-size: 0.8rem;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            box-shadow: none;
+            letter-spacing: 0.5px;
+        }
+        .reset-btn:hover { 
+            border-color: #5e4641; 
+            color: #c5a880; 
+            background: rgba(255,255,255,0.01);
+        }
+
+        .log-card {
+            background: #120b0b;
+            border: 1px solid #261715;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.8);
+            width: 340px;
+            max-height: 180px;
+            overflow-y: auto;
+            box-sizing: border-box;
+            z-index: 2;
+        }
+
+        .log-title {
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            color: #6e5550;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            letter-spacing: 1.5px;
+            border-bottom: 1px solid #241412;
+            padding-bottom: 6px;
+        }
+
+        .log-item {
+            font-family: 'IM Fell English', serif;
+            font-size: 1.05rem;
+            padding: 5px 0;
+            border-bottom: 1px solid #1c100e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .log-time { 
+            color: #4a3835; 
+            font-family: 'Inter', sans-serif; 
+            font-size: 0.75rem;
+        }
+        .log-heal { color: #5cb885; }
+        .log-damage { color: #e05353; }
+        .log-system { color: #c5a880; font-style: italic; }
+
+        /* Death Screen Overlay */
+        .death-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(6, 2, 2, 0.97);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .death-screen.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .death-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.6rem;
+            color: #991b1b;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            text-shadow: 0 0 30px rgba(153, 27, 27, 0.8);
+            animation: pulse 2.5s infinite;
+        }
+        .death-subtitle {
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: #57413d;
+            margin-bottom: 25px;
+            font-size: 1.2rem;
+        }
+        .revive-btn {
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(to bottom, #991b1b, #6b1111);
+            color: #fca5a5;
+            font-size: 0.85rem;
+            padding: 8px 22px;
+            border: 1px solid #450a0a;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            transition: all 0.2s ease;
+            width: auto;
+            flex: none;
+            letter-spacing: 1px;
+        }
+        .revive-btn:hover {
+            background: linear-gradient(to bottom, #b91c1c, #7f1d1d);
+            transform: translateY(-1px);
+            box-shadow: 0 0 12px rgba(185, 28, 28, 0.4);
+        }
+
+        /* Custom Scrollbar for the Log */
+        .log-card::-webkit-scrollbar { width: 5px; }
+        .log-card::-webkit-scrollbar-track { background: #0c0707; }
+        .log-card::-webkit-scrollbar-thumb { background: #2c1a17; border-radius: 2px; }
+        .log-card::-webkit-scrollbar-thumb:hover { background: #3d231d; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.02); opacity: 1; text-shadow: 0 0 40px rgba(153, 27, 27, 0.9); }
+            100% { transform: scale(1); opacity: 0.9; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="death-overlay" class="death-screen">
+    <div class="death-title">Your Run Has Ended</div>
+    <div class="death-subtitle">The dungeon claims another scoundrel...</div>
+    <button class="revive-btn" onclick="resetHP()">Deal New Room</button>
+</div>
+
+<div class="counter-card">
+    <h2>Scoundrel</h2>
+    <div class="hp-container">
+        <div id="hp-value" class="hp-display">20</div>
+        <div class="hp-label">Health Points</div>
+    </div>
+    
+    <div class="btn-group">
+        <button class="btn-damage" onclick="changeHP(-1)">-1</button>
+        <button class="btn-heal" onclick="changeHP(1)">+1</button>
+    </div>
+    
+    <div class="btn-group">
+        <button class="btn-damage" style="font-size: 0.95rem;" onclick="changeHP(-5)">-5</button>
+        <button class="btn-heal" style="font-size: 0.95rem;" onclick="changeHP(5)">+5</button>
+    </div>
+
+    <button class="reset-btn" onclick="resetHP()">Reset Deck (20 HP)</button>
+</div>
+
+<div class="log-card">
+    <div class="log-title">Activity Log</div>
+    <div id="log-container"></div>
+</div>
+
+<script>
+    const MAX_HP = 20;
+    let currentHP = MAX_HP;
+    const hpDisplay = document.getElementById('hp-value');
+    const logContainer = document.getElementById('log-container');
+const deathOverlay = document.getElementById('death-overlay');
+let audioCtx = null;
+
+function initAudio() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+function playSound(type) {
+    initAudio();
+    if (!audioCtx) return;
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    const now = audioCtx.currentTime;
+
+    if (type === 'heal') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(220, now); // A3 potion tone
+        osc.frequency.exponentialRampToValueAtTime(440, now + 0.2);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+        osc.start(now);
+        osc.stop(now + 0.2);
+    } else if (type === 'damage') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(120, now); // Harsh blade strike thud
+        osc.frequency.linearRampToValueAtTime(30, now + 0.25);
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+        osc.start(now);
+        osc.stop(now + 0.25);
+    } else if (type === 'death') {
+        osc.type = 'sawtooth';
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.8);
+        osc.frequency.setValueAtTime(196.00, now); // G3
+        osc.frequency.setValueAtTime(146.83, now + 0.2); // D3
+        osc.frequency.setValueAtTime(110.00, now + 0.4); // A2 gloomy drop
+        osc.frequency.linearRampToValueAtTime(40, now + 0.8);
+        osc.start(now);
+        osc.stop(now + 0.8);
+    } else if (type === 'system') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(293.66, now); // Card shuffling ring tone
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+        osc.start(now);
+        osc.stop(now + 0.15);
+    }
+}
+
+function getTimeString() {
+    const now = new Date();
+    return now.toTimeString().split(' ')[0];
+}
+
+function addLogEntry(message, typeClass) {
+    const item = document.createElement('div');
+    item.className = 'log-item';
+    item.innerHTML = `
+        <span class="${typeClass}">${message}</span> 
+        <span class="log-time">${getTimeString()}</span>
+    `;
+    logContainer.insertBefore(item, logContainer.firstChild);
+}
+
+function changeHP(amount) {
+    if (currentHP <= 0 && amount < 0) return;
+    
+    const oldHP = currentHP;
+    currentHP += amount;
+    
+    if (currentHP > MAX_HP) currentHP = MAX_HP;
+    if (currentHP < 0) currentHP = 0;
+    
+    const netChange = currentHP - oldHP;
+    
+    if (netChange > 0) {
+        addLogEntry(`Drank Potion (+${netChange} HP)`, 'log-heal');
+        playSound('heal');
+    } else if (netChange < 0) {
+        addLogEntry(`Damage Taken (${netChange} HP)`, 'log-damage');
+        if (currentHP === 0) {
+            addLogEntry("Defeated in the dungeon.", 'log-system');
+            playSound('death');
+        } else {
+            playSound('damage');
+        }
+    }
+    updateDisplay();
+}
+
+function resetHP() {
+    currentHP = MAX_HP;
+    addLogEntry("Deck shuffled. Enter the dungeon...", 'log-system');
+    playSound('system');
+    updateDisplay();
+}
+
+function updateDisplay() {
+    hpDisplay.textContent = currentHP;
+    hpDisplay.className = 'hp-display';
+    
+    if (currentHP === MAX_HP) {
+        hpDisplay.classList.add('max');
+    }
+    
+    if (currentHP === 0) {
+        deathOverlay.classList.add('active');
+    } else {
+        deathOverlay.classList.remove('active');
+    }
+}
+
+updateDisplay();
+
+</script>
+
+</body>
+</html>
