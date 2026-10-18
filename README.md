@@ -31,10 +31,8 @@ Visit the hosted app directly through its URL:
 If you have Git installed, run:
 
 ```bash
-git clone YOUR_REPOSITORY_URL
+gh repo clone AMwyaShar1012/scoundrel-companion
 ```
-
-Replace `YOUR_REPOSITORY_URL` with the URL of this repository. Then open the HTML file in your browser.
 
 ## Technology
 
