@@ -22,9 +22,13 @@ Visit the hosted app directly through its URL:
 
 ### Option 2: Download the App
 
-1. Click **Code → Download ZIP** on this GitHub repository.
-2. Extract the downloaded ZIP file.
-3. Open the HTML file in your preferred web browser.
+You can download Scoundrel Companion in either of these ways:
+
+- From the Repository: Navigate to the repository's main page, click the Code button near the top, and select Download ZIP.
+
+- From the Releases Page: Open the repository's Releases page, select the latest release, and download the available source code ZIP archive.
+
+Once downloaded, extract the ZIP file and open the HTML file in your preferred web browser.
 
 ### Option 3: Clone the Repository
 
